@@ -13,12 +13,24 @@ const Register = ({ setAuth }) => {
     e.preventDefault();
     try {
       if(name && email && password && phone) {
-        localStorage.setItem('token', 'mock_token');
-        setAuth(true);
-        navigate('/dashboard');
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, phone })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          localStorage.setItem('token', data.token);
+          setAuth(true);
+          navigate('/dashboard');
+        } else {
+          console.error(data.msg);
+          alert(data.msg || 'Registration failed');
+        }
       }
     } catch (err) {
       console.error(err);
+      alert('Error connecting to server');
     }
   };
 

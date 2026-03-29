@@ -1,0 +1,7 @@
+[out:json][timeout:25];
+(
+  node["amenity"="hospital"](around:5000,11.0168,76.9558);
+  node["amenity"="police"](around:5000,11.0168,76.9558);
+  node["shop"="mall"](around:5000,11.0168,76.9558);
+);
+out body;

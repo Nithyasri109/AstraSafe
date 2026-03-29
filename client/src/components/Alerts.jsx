@@ -5,19 +5,40 @@ const Alerts = () => {
   const [alerts, setAlerts] = useState([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('smart_safety_alerts');
-    if (saved) {
-      // Parse and sort by newest first
-      const parsed = JSON.parse(saved);
-      parsed.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      setAlerts(parsed);
-    }
+    const fetchAlerts = async () => {
+      try {
+        const res = await fetch('/api/user/data', {
+          headers: { 'x-auth-token': localStorage.getItem('token') }
+        });
+        const data = await res.json();
+        if (res.ok && data.alerts) {
+          // Parse and sort by newest first
+          const parsed = data.alerts;
+          parsed.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          setAlerts(parsed);
+        }
+      } catch (err) {
+        console.error('Error fetching alerts:', err);
+      }
+    };
+    fetchAlerts();
   }, []);
 
-  const clearHistory = () => {
+  const clearHistory = async () => {
     if (window.confirm('Are you sure you want to clear your alert history?')) {
-      localStorage.removeItem('smart_safety_alerts');
-      setAlerts([]);
+      try {
+        await fetch('/api/user/alerts', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': localStorage.getItem('token')
+          },
+          body: JSON.stringify({ alerts: [] })
+        });
+        setAlerts([]);
+      } catch (err) {
+        console.error('Error clearing alerts:', err);
+      }
     }
   };
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Shield, Users, MapPin, Bell, User } from 'lucide-react';
+import { Shield, Users, MapPin, Bell, User, HeartPulse } from 'lucide-react';
 
 const Sidebar = () => {
   return (
@@ -47,6 +47,17 @@ const Sidebar = () => {
       >
         <User size={20} />
         <span>Profile</span>
+      </NavLink>
+
+      <div style={{ flex: 1 }}></div>
+
+      <NavLink 
+        to="/volunteer/dashboard" 
+        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+        style={{ marginTop: 'auto', color: '#10b981' }}
+      >
+        <HeartPulse size={20} />
+        <span>Volunteer</span>
       </NavLink>
     </div>
   );

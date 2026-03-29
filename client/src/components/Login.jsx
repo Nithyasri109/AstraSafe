@@ -10,23 +10,54 @@ const Login = ({ setAuth }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      // Mock login for frontend UI development, replace with real fetch later
-      // const res = await fetch('http://localhost:5000/api/auth/login', { ... })
       if(email && password) {
-        localStorage.setItem('token', 'mock_token');
-        setAuth(true);
-        navigate('/dashboard');
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          localStorage.setItem('token', data.token);
+          setAuth(true);
+          navigate('/dashboard');
+        } else {
+          console.error(data.msg);
+          alert(data.msg || 'Login failed');
+        }
       }
     } catch (err) {
       console.error(err);
+      alert('Error connecting to server');
     }
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '1rem' }}>
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
-        <ShieldAlert size={48} color="#ef4444" style={{ marginBottom: '1rem' }} />
-        <h2 style={{ marginBottom: '2rem', fontSize: '2rem', fontWeight: '800' }}>Smart Safety</h2>
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '100vh', 
+      padding: '1rem',
+      backgroundImage: 'url(/login-bg.png)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}>
+      <div className="glass-panel" style={{ 
+          width: '100%', 
+          maxWidth: '400px', 
+          textAlign: 'center', 
+          backgroundColor: 'rgba(255, 255, 255, 0.85)', 
+          backdropFilter: 'blur(12px)', 
+          WebkitBackdropFilter: 'blur(12px)', 
+          padding: '2.5rem', 
+          borderRadius: '16px', 
+          boxShadow: '0 8px 32px rgba(100, 30, 150, 0.15)',
+          border: '1px solid rgba(255, 255, 255, 0.5)'
+        }}>
+        <ShieldAlert size={48} color="var(--danger)" style={{ marginBottom: '1rem' }} />
+        <h2 style={{ marginBottom: '2rem', fontSize: '2rem', fontWeight: '800' }}>AstraSafe</h2>
         <form onSubmit={handleLogin}>
           <input 
             type="email" 
@@ -48,6 +79,9 @@ const Login = ({ setAuth }) => {
         </form>
         <p style={{ marginTop: '1.5rem', color: 'var(--text-muted)' }}>
           Don't have an account? <Link to="/register" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '600' }}>Sign Up</Link>
+        </p>
+        <p style={{ marginTop: '1rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+          Are you a first responder? <Link to="/volunteer/login" style={{ color: '#10b981', textDecoration: 'none', fontWeight: '600' }}>Volunteer Portal</Link>
         </p>
       </div>
     </div>

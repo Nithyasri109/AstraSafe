@@ -7,15 +7,34 @@ const Profile = () => {
     email: 'jane@example.com',
     phone: '',
     emergencyPin: '1234',
-    emergencyNumber: '112'
+    emergencyNumber: '112',
+    profileImage: null
   });
   const [isSaved, setIsSaved] = useState(false);
+  const fileInputRef = React.useRef(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('smart_safety_profile');
-    if (saved) {
-      setProfile(JSON.parse(saved));
-    }
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch('/api/user/data', {
+          headers: { 'x-auth-token': localStorage.getItem('token') }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setProfile({
+            name: data.name || profile.name,
+            email: data.email || profile.email,
+            phone: data.phone || profile.phone,
+            emergencyPin: data.emergencyPin || profile.emergencyPin,
+            emergencyNumber: data.emergencyNumber || profile.emergencyNumber,
+            profileImage: data.profileImage || profile.profileImage
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+      }
+    };
+    fetchProfile();
   }, []);
 
   const handleChange = (e) => {
@@ -23,11 +42,36 @@ const Profile = () => {
     setIsSaved(false);
   };
 
-  const handleSave = (e) => {
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfile({ ...profile, profileImage: reader.result });
+        setIsSaved(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSave = async (e) => {
     e.preventDefault();
-    localStorage.setItem('smart_safety_profile', JSON.stringify(profile));
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 3000);
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': localStorage.getItem('token')
+        },
+        body: JSON.stringify(profile)
+      });
+      if (res.ok) {
+        setIsSaved(true);
+        setTimeout(() => setIsSaved(false), 3000);
+      }
+    } catch (err) {
+      console.error('Error saving profile:', err);
+    }
   };
 
   return (
@@ -39,10 +83,27 @@ const Profile = () => {
 
       <div className="card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
         <div style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', marginBottom: '1.5rem' }}>
-          <User size={48} />
-          <button style={{ position: 'absolute', bottom: 0, right: 0, background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '2px solid white' }}>
+          <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {profile.profileImage ? (
+              <img src={profile.profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <User size={48} />
+            )}
+          </div>
+          <button 
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            style={{ position: 'absolute', bottom: 0, right: 0, background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '2px solid white', zIndex: 10 }}
+          >
             <Camera size={16} />
           </button>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleImageChange} 
+            accept="image/*" 
+            style={{ display: 'none' }} 
+          />
         </div>
         <h2 style={{ fontSize: '1.25rem', fontWeight: '600' }}>{profile.name || 'User'}</h2>
       </div>

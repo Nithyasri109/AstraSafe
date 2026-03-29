@@ -1,6 +1,6 @@
 {
-  "name": "Smart Safety Network",
-  "short_name": "SmartSafety",
+  "name": "AstraSafe",
+  "short_name": "AstraSafe",
   "description": "Immediate assistance emergency response system",
   "start_url": ".",
   "display": "standalone",

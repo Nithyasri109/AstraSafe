@@ -8,6 +8,9 @@ import Sidebar from './components/Sidebar';
 import Contacts from './components/Contacts';
 import Alerts from './components/Alerts';
 import Profile from './components/Profile';
+import VolunteerLogin from './components/VolunteerLogin';
+import VolunteerRegister from './components/VolunteerRegister';
+import VolunteerDashboard from './components/VolunteerDashboard';
 
 const Layout = ({ children }) => {
   return (
@@ -49,6 +52,13 @@ function App() {
         <Route 
           path="/profile" 
           element={isAuthenticated ? <Layout><Profile /></Layout> : <Navigate to="/login" />} 
+        />
+        {/* Volunteer Routes */}
+        <Route path="/volunteer/login" element={<VolunteerLogin setAuth={setIsAuthenticated} />} />
+        <Route path="/volunteer/register" element={<VolunteerRegister setAuth={setIsAuthenticated} />} />
+        <Route 
+          path="/volunteer/dashboard" 
+          element={isAuthenticated && localStorage.getItem('userType') === 'volunteer' ? <VolunteerDashboard setAuth={setIsAuthenticated} /> : <Navigate to="/volunteer/login" />} 
         />
       </Routes>
     </Router>

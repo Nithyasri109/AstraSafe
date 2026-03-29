@@ -7,15 +7,36 @@ const Contacts = () => {
   const [newPhone, setNewPhone] = useState('');
 
   useEffect(() => {
-    const saved = localStorage.getItem('smart_safety_contacts');
-    if (saved) {
-      setContacts(JSON.parse(saved));
-    }
+    const fetchContacts = async () => {
+      try {
+        const res = await fetch('/api/user/data', {
+          headers: { 'x-auth-token': localStorage.getItem('token') }
+        });
+        const data = await res.json();
+        if (res.ok && data.trustedContacts) {
+          setContacts(data.trustedContacts);
+        }
+      } catch (err) {
+        console.error('Error fetching contacts:', err);
+      }
+    };
+    fetchContacts();
   }, []);
 
-  const saveContacts = (updatedContacts) => {
-    setContacts(updatedContacts);
-    localStorage.setItem('smart_safety_contacts', JSON.stringify(updatedContacts));
+  const saveContacts = async (updatedContacts) => {
+    try {
+      setContacts(updatedContacts);
+      await fetch('/api/user/contacts', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': localStorage.getItem('token')
+        },
+        body: JSON.stringify({ contacts: updatedContacts })
+      });
+    } catch (err) {
+      console.error('Error saving contacts:', err);
+    }
   };
 
   const handleAdd = (e) => {
