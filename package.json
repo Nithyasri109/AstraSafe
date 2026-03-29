@@ -4,7 +4,7 @@
   "description": "Smart Safety App Root Deployment configuration",
   "scripts": {
     "install-server": "npm install --prefix server",
-    "install-client": "npm install --prefix client",
+    "install-client": "npm install --prefix client --include=dev",
     "install-all": "npm run install-server && npm run install-client",
     "build": "npm run install-all && npm run build --prefix client",
     "start": "npm start --prefix server"
