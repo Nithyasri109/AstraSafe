@@ -102,7 +102,7 @@ io.on('connection', (socket) => {
 });
 
 // Catch-all route for React Router: must be after API routes and Socket.io
-app.get('*', (req, res) => {
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(clientBuildPath, 'index.html'));
 });
 
